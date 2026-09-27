@@ -1,0 +1,1953 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>My Account - 极简账本 Pro</title>
+<!-- 引入花体与数字 serif 字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.58);
+        --glass-bg-hover: rgba(255, 255, 255, 0.78);
+        --glass-border: rgba(255, 255, 255, 0.9);
+        --glass-shadow: 0 12px 32px 0 rgba(165, 175, 186, 0.18), inset 0 1px 2px 0 rgba(255, 255, 255, 0.9);
+        --text-main: #2c3038;
+        --text-sub: #828a96;
+        --radius-card: 28px;
+        --radius-sm: 18px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+        background: 
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
+            radial-gradient(circle at 20% 60%, rgba(220, 226, 233, 0.5) 0%, transparent 50%),
+            linear-gradient(135deg, #e9ecef 0%, #dee3e8 40%, #e8ebf0 70%, #dbe0e6 100%);
+        background-attachment: fixed;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-bottom: 110px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .app-container {
+        width: 100%;
+        max-width: 414px;
+        padding: 16px 20px;
+        position: relative;
+    }
+
+    /* 视图切换 */
+    .view-page { display: none; }
+    .view-page.active { display: block; }
+
+    /* ===== Header ===== */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        margin-bottom: 18px;
+    }
+
+    .title-area .title {
+        font-family: 'Alex Brush', cursive;
+        font-size: 38px;
+        font-weight: 400;
+        color: #2b2e34;
+        line-height: 1;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .title-area .subtitle {
+        font-size: 12px;
+        color: #79828f;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .mask-badge-pill {
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        padding: 2px 8px;
+        border-radius: 100px;
+        font-size: 11px;
+        color: #4a515e;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+    }
+
+    .avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 12px rgba(180, 188, 200, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+    .avatar-btn:active { transform: scale(0.92); }
+    .avatar-btn::after {
+        content: 'Char';
+        position: absolute;
+        bottom: -4px;
+        background: #2b2e34;
+        color: #fff;
+        font-size: 8px;
+        padding: 1px 4px;
+        border-radius: 6px;
+        transform: scale(0.85);
+    }
+
+    /* ===== 主卡片 ===== */
+    .main-card {
+        position: relative;
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-card);
+        padding: 24px 22px;
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+        margin-bottom: 18px;
+    }
+
+    .card-label {
+        font-size: 13px;
+        color: #666e7a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .eye-icon { cursor: pointer; opacity: 0.7; }
+    .eye-icon:hover { opacity: 1; }
+
+    .card-balance {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 38px;
+        font-weight: 600;
+        color: #1e2227;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+    }
+
+    /* 预算进度条 */
+    .budget-section {
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.4);
+        padding: 10px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.7);
+        cursor: pointer;
+    }
+    .budget-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #727a86;
+        margin-bottom: 6px;
+    }
+    .budget-bar-bg {
+        width: 100%;
+        height: 6px;
+        background: rgba(200, 208, 218, 0.4);
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    .budget-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #6c757d, #2b2e34);
+        border-radius: 100px;
+        transition: width 0.4s ease;
+    }
+
+    .card-stats {
+        display: flex;
+        gap: 36px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-box { cursor: pointer; }
+    .stat-box .stat-title { font-size: 12px; color: #7d8592; margin-bottom: 4px; }
+    .stat-box .stat-value {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 20px;
+        font-weight: 600;
+        color: #282c34;
+    }
+
+    /* ===== 快捷功能按钮 (5项网格) ===== */
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-bottom: 22px;
+    }
+
+    .action-item {
+        background: var(--glass-bg);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-sm);
+        padding: 14px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 8px 20px rgba(180, 188, 200, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+    .action-item:active { transform: scale(0.94); background: var(--glass-bg-hover); }
+    .action-item svg { color: #383e48; }
+    .action-item span { font-size: 11px; color: #4a515e; white-space: nowrap; }
+
+    /* ===== 筛选栏 ===== */
+    .filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 0 4px;
+    }
+
+    .filter-left { display: flex; align-items: baseline; gap: 8px; }
+    .filter-left .today-script { font-family: 'Alex Brush', cursive; font-size: 28px; color: #3b414c; }
+
+    .dropdown-btn {
+        position: relative;
+        background: rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #5a6270;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+    }
+
+    .dropdown-select {
+        position: absolute;
+        top:0; left:0; width: 100%; height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* ===== 列表大卡片 ===== */
+    .list-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-card);
+        padding: 10px 18px;
+        box-shadow: var(--glass-shadow);
+        min-height: 180px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(225, 230, 238, 0.5);
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:active { opacity: 0.7; }
+
+    .item-left { display: flex; align-items: center; gap: 14px; }
+
+    .icon-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(235, 238, 243, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #383e48;
+        flex-shrink: 0;
+    }
+
+    .item-detail .title { font-size: 15px; font-weight: 500; color: #23272e; margin-bottom: 3px; }
+    .item-detail .sub { font-size: 11px; color: #9098a5; }
+
+    .item-amount {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 20px;
+        font-weight: 600;
+        color: #23272e;
+    }
+    .item-amount.income { color: #2b303a; }
+
+    .empty-state { text-align: center; padding: 40px 10px; color: #8c94a0; }
+    .empty-state .script-tip { font-family: 'Alex Brush', cursive; font-size: 26px; margin-top: 6px; color: #727a86; }
+
+    /* ===== Char / 面具卡片样式 ===== */
+    .persona-card-item {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 14px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+    .persona-card-item.active {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: #2b2e34;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .persona-info { display: flex; align-items: center; gap: 12px; }
+    .persona-icon { font-size: 26px; width: 44px; height: 44px; background: rgba(0,0,0,0.04); border-radius: 50%; display:flex; align-items:center; justify-content:center; overflow: hidden; }
+    .persona-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .persona-name { font-size: 15px; font-weight: 600; color: #222; }
+    .persona-desc { font-size: 11px; color: #777; margin-top: 2px; }
+
+    /* ===== 弹窗模态框 ===== */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(180, 190, 200, 0.35);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        z-index: 200;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .modal-card {
+        width: 100%;
+        max-width: 414px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(35px) saturate(200%);
+        -webkit-backdrop-filter: blur(35px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        border-radius: 32px 32px 0 0;
+        padding: 24px 22px 36px;
+        box-shadow: 0 -10px 40px rgba(100, 110, 125, 0.18);
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.2);
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    .modal-overlay.active .modal-card { transform: translateY(0); }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-title { font-size: 17px; font-weight: 600; color: #222; }
+    .modal-close {
+        font-size: 18px; color: #888; cursor: pointer;
+        width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; background: rgba(0,0,0,0.05);
+    }
+
+    .type-toggle {
+        display: flex; background: rgba(220, 226, 235, 0.5);
+        border: 1px solid rgba(255,255,255,0.8); border-radius: 100px;
+        padding: 3px; margin-bottom: 16px;
+    }
+    .type-btn {
+        flex: 1; text-align: center; padding: 9px 0; font-size: 13px;
+        font-weight: 500; color: #666; border-radius: 100px; cursor: pointer; transition: all 0.25s;
+    }
+    .type-btn.active { background: #2b2e34; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .category-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .cat-chip {
+        padding: 8px 14px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 100px;
+        font-size: 13px;
+        color: #4a515e;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    .cat-chip.active {
+        background: #2b2e34;
+        color: #fff;
+        border-color: #2b2e34;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .icon-preview-circle {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: rgba(0,0,0,0.05);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px; overflow: hidden; flex-shrink: 0;
+    }
+    .icon-preview-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; color: #828a96; margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea {
+        width: 100%; padding: 12px 14px; background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 14px; font-size: 15px; color: #222; outline: none;
+    }
+    .form-textarea { height: 80px; resize: none; font-size: 13px; line-height: 1.4; }
+
+    .btn-submit {
+        width: 100%; padding: 15px; background: #2b2e34; color: #fff; border: none;
+        border-radius: 16px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px;
+    }
+
+    .btn-secondary {
+        width: 100%; padding: 12px; background: rgba(255,255,255,0.7); color: #2b2e34; border: 1px solid #fff;
+        border-radius: 14px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 8px;
+    }
+
+    /* Toast */
+    .toast {
+        position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px);
+        background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.9); padding: 10px 22px; border-radius: 100px;
+        font-size: 13px; color: #2b2e34; box-shadow: 0 8px 24px rgba(160, 170, 185, 0.2);
+        opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 300; text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ===== 底部导航栏 ===== */
+    .bottom-nav-container {
+        position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+        width: calc(100% - 40px); max-width: 374px;
+        background: rgba(255, 255, 255, 0.68); backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border: 1px solid var(--glass-border); border-radius: 35px;
+        padding: 8px 12px; box-shadow: 0 16px 36px rgba(150, 160, 175, 0.25), inset 0 1px 2px #fff;
+        display: flex; justify-content: space-around; align-items: center; z-index: 100;
+    }
+
+    .nav-tab {
+        display: flex; flex-direction: column; align-items: center; gap: 3px;
+        cursor: pointer; color: #7e8794; padding: 4px 16px; border-radius: 20px; transition: all 0.3s;
+    }
+    .nav-tab.active { color: #1e2228; }
+    .nav-tab.active .nav-icon-wrapper {
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 4px 10px rgba(180, 188, 200, 0.3), inset 0 1px 2px #fff;
+        border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-tab span { font-size: 11px; }
+
+    /* 通用子页面卡片 */
+    .page-card {
+        background: var(--glass-bg); backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border); border-radius: var(--radius-card);
+        padding: 20px; box-shadow: var(--glass-shadow); margin-top: 10px; margin-bottom: 16px;
+    }
+    .page-card-title {
+        font-size: 15px; font-weight: 600; color: #222; margin-bottom: 14px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ===== 1. 首页 ===== -->
+    <div id="view-home" class="view-page active">
+        <div class="header">
+            <div class="title-area">
+                <div class="title">My Account <span style="font-size:14px; font-family:sans-serif;">✦</span></div>
+                <div class="subtitle">
+                    <span>Better money, better life.</span>
+                    <span class="mask-badge-pill" id="home-mask-badge" onclick="switchNavById('view-mine', 3)">🎭 未设置</span>
+                </div>
+            </div>
+            <!-- 右上角点击直达 AI Char 管理 -->
+            <div class="avatar-btn" id="home-avatar-btn" onclick="openCharSelectModal()" title="切换 AI Char 角色伴侣">🤖</div>
+        </div>
+
+        <!-- 主结余卡片 -->
+        <div class="main-card">
+
+            <div class="card-label">
+                本月结余 
+                <svg class="eye-icon" id="eye-btn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </div>
+            
+            <div class="card-balance" id="balance-text">¥ 0.00</div>
+
+            <!-- 预算进度条 -->
+            <div class="budget-section" onclick="openBudgetModal()">
+                <div class="budget-header">
+                    <span>月度预算使用进度</span>
+                    <span id="budget-text-percent">0.0% (上限 ¥5,000)</span>
+                </div>
+                <div class="budget-bar-bg">
+                    <div class="budget-bar-fill" id="budget-bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="card-stats">
+                <div class="stat-box" onclick="filterTypeAndRender('in')">
+                    <div class="stat-title">本月收入</div>
+                    <div class="stat-value" id="income-text">¥ 0.00</div>
+                </div>
+                <div class="stat-box" onclick="filterTypeAndRender('out')">
+                    <div class="stat-title">本月支出</div>
+                    <div class="stat-value" id="expense-text">¥ 0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5个快捷功能按钮 -->
+        <div class="action-grid">
+            <div class="action-item" onclick="openAddModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>记一笔</span>
+            </div>
+            <div class="action-item" onclick="openScanModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
+                <span>扫一扫</span>
+            </div>
+            <div class="action-item" onclick="openTransferModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                <span>转账</span>
+            </div>
+            <div class="action-item" onclick="runAiDiagnosis()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                <span>AI诊断</span>
+            </div>
+            <div class="action-item" onclick="openStatsModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+                <span>统计</span>
+            </div>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <div class="filter-left">
+                <span class="today-script" id="filter-script">Today</span>
+                <div class="dropdown-btn">
+                    <span id="filter-date-label">今天</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    <select class="dropdown-select" onchange="changeDateFilter(this.value)">
+                        <option value="today">今天</option>
+                        <option value="month">本月</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-right">
+                <div class="dropdown-btn">
+                    <span id="filter-type-label">全部类型</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5-5 5 5"/></svg>
+                    <select class="dropdown-select" id="select-type-filter" onchange="changeTypeFilter(this.value)">
+                        <option value="all">全部类型</option>
+                        <option value="out">支出</option>
+                        <option value="in">收入</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 明细列表卡片 -->
+        <div class="list-card" id="transaction-list"></div>
+    </div>
+
+    <!-- ===== 2. 账单明细页 ===== -->
+    <div id="view-bills" class="view-page">
+        <div class="header">
+            <div class="title-area">
+                <div class="title">History <span style="font-size:14px; font-family:sans-serif;">✦</span></div>
+                <div class="subtitle">Complete Transaction Records</div>
+            </div>
+        </div>
+        <div style="margin-bottom: 12px;">
+            <input type="text" id="search-bill-input" class="form-input" placeholder="🔍 搜索备注、分类或金额..." oninput="renderBillsView()">
+        </div>
+        <div class="list-card" id="all-bills-list"></div>
+    </div>
+
+    <!-- ===== 3. 资产管理页 ===== -->
+    <div id="view-assets" class="view-page">
+        <div class="header">
+            <div class="title-area">
+                <div class="title">Assets <span style="font-size:14px; font-family:sans-serif;">✦</span></div>
+                <div class="subtitle">My Balance Breakdown</div>
+            </div>
+        </div>
+        <div class="page-card">
+            <div class="page-card-title">账户资金分布</div>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(0,0,0,0.06); padding-bottom: 10px;">
+                    <div><strong>微信钱包</strong><div style="font-size:11px; color:#888;">日常消费账户</div></div>
+                    <strong id="asset-wechat" style="font-family:'Cormorant Garamond', serif; font-size:20px;">¥ 0.00</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(0,0,0,0.06); padding-bottom: 10px;">
+                    <div><strong>支付宝余额</strong><div style="font-size:11px; color:#888;">理财与转账</div></div>
+                    <strong id="asset-alipay" style="font-family:'Cormorant Garamond', serif; font-size:20px;">¥ 0.00</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(0,0,0,0.06); padding-bottom: 10px;">
+                    <div><strong>招商银行卡</strong><div style="font-size:11px; color:#888;">储蓄与核心资产</div></div>
+                    <strong id="asset-bank" style="font-family:'Cormorant Garamond', serif; font-size:20px;">¥ 0.00</strong>
+                </div>
+            </div>
+            <button onclick="openTransferModal()" style="width:100%; padding:12px; margin-top:20px; background:rgba(255,255,255,0.7); border:1px solid #fff; border-radius:14px; font-size:13px; cursor:pointer;">内部资金转账</button>
+        </div>
+    </div>
+
+    <!-- ===== 4. 我的 (个人/面具/API设置页) ===== -->
+    <div id="view-mine" class="view-page">
+        <div class="header">
+            <div class="title-area">
+                <div class="title">Profile <span style="font-size:14px; font-family:sans-serif;">✦</span></div>
+                <div class="subtitle">User Identity Masks & Settings</div>
+            </div>
+        </div>
+
+        <!-- 当前 User 面具预览卡片 -->
+        <div class="page-card" style="text-align: center;">
+            <div class="avatar-btn" style="width:68px; height:68px; margin: 0 auto 10px; font-size:32px;" id="mine-profile-avatar">👤</div>
+            <h3 style="font-size: 17px; margin-bottom: 2px;" id="mine-profile-name">尚未设置面具</h3>
+            <p style="font-size: 12px; color: #888; margin-bottom: 14px;" id="mine-profile-trait">点击下方"新增面具"来创建你自己的 User 人设。</p>
+            <div style="display:inline-block; font-family:'Alex Brush', cursive; font-size:20px; color:#555;" id="mine-profile-quote"></div>
+        </div>
+
+        <!-- 🎭 User 面具管理 -->
+        <div class="page-card">
+            <div class="page-card-title">
+                <span>🎭 User 身份面具管理</span>
+                <button onclick="openAddMaskModal()" style="padding:4px 10px; background:rgba(0,0,0,0.05); border:none; border-radius:100px; font-size:11px; cursor:pointer;">+ 新增面具</button>
+            </div>
+            <div id="mask-list-container"></div>
+        </div>
+
+        <!-- ⚙️ API 密钥与预设设置 -->
+        <div class="page-card">
+            <div class="page-card-title">⚙️ API 接口与 AI 参数</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button onclick="openApiModal()" style="width:100%; padding:12px; background:rgba(255,255,255,0.75); border:1px solid #fff; border-radius:14px; font-size:13px; text-align:left; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                    <span>配置 API / 拉取模型 / 预设</span>
+                    <span style="color:#888; font-size:12px;" id="api-status-label">未配置</span>
+                </button>
+                <button onclick="openBudgetModal()" style="width:100%; padding:12px; background:rgba(255,255,255,0.75); border:1px solid #fff; border-radius:14px; font-size:13px; text-align:left; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                    <span>设置月度预算上限</span>
+                    <span style="color:#888; font-size:12px;" id="budget-status-label">¥5,000</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 💾 高级数据操作 -->
+        <div class="page-card">
+            <div class="page-card-title">💾 数据管理</div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="exportData()" style="flex:1; padding:12px; background:rgba(255,255,255,0.75); border:1px solid #fff; border-radius:14px; font-size:12px; cursor:pointer;">导出JSON备份</button>
+                <button onclick="importData()" style="flex:1; padding:12px; background:rgba(255,255,255,0.75); border:1px solid #fff; border-radius:14px; font-size:12px; cursor:pointer;">恢复JSON数据</button>
+            </div>
+            <button onclick="resetData()" style="width:100%; padding:12px; margin-top:10px; background:rgba(229,77,77,0.1); color:#e54d4d; border:1px solid rgba(229,77,77,0.2); border-radius:14px; font-size:13px; font-weight:500; cursor:pointer;">清空所有账目与恢复默认</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== 弹窗：👑 AI Char 角色管理与选择（右上角触发） ===== -->
+<div class="modal-overlay" id="modal-char-select">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">🤖 选择 AI Char 角色伴侣</div>
+            <div class="modal-close" onclick="closeModal('modal-char-select')">✕</div>
+        </div>
+        <p style="font-size:11px; color:#888; margin-bottom:12px;">已选中的 Char 将作为你的理财助手与分析伴侣：</p>
+        <div id="char-list-container"></div>
+        <button class="btn-submit" onclick="openAddCharModal()">+ 新建 Char 角色人设</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：👑 添加/编辑 AI Char 人设 ===== -->
+<div class="modal-overlay" id="modal-char-edit">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title" id="char-modal-title">新建 Char 角色</div>
+            <div class="modal-close" onclick="closeModal('modal-char-edit')">✕</div>
+        </div>
+        <div class="form-group">
+            <label>Char 头像</label>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                <div class="icon-preview-circle" id="char-icon-preview">🤖</div>
+                <input type="text" id="char-input-icon" class="form-input" placeholder="输入 Emoji，例如 💎" maxlength="2" oninput="onIconTextInput('char')">
+            </div>
+            <button type="button" class="btn-secondary" style="margin-top:0;" onclick="document.getElementById('char-icon-file').click()">📷 从相册选择头像图片</button>
+            <input type="file" id="char-icon-file" accept="image/*" style="display:none;" onchange="handleIconFile(event,'char')">
+        </div>
+        <div class="form-group">
+            <label>Char 名字 (例如：冷酷执事·墨瑟)</label>
+            <input type="text" id="char-input-name" class="form-input" placeholder="给你的 AI 伴侣起个名字">
+        </div>
+        <div class="form-group">
+            <label>角色性格与语气设定 (System Prompt)</label>
+            <textarea id="char-input-trait" class="form-textarea" placeholder="在这里填入你自己的“活人感”人设提示词，例如说话风格、性格、边界感、对你的称呼方式等..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>专属迎宾词 / 口头禅</label>
+            <input type="text" id="char-input-quote" class="form-input" placeholder="给你的 Char 写一句口头禅">
+        </div>
+        <button class="btn-submit" onclick="saveChar()">保存 Char 角色</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：⚙️ API 密钥、自动拉取模型 & 预设保存 ===== -->
+<div class="modal-overlay" id="modal-api">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">⚙️ API 配置与模型预设</div>
+            <div class="modal-close" onclick="closeModal('modal-api')">✕</div>
+        </div>
+
+        <!-- 预设选择器 -->
+        <div class="form-group">
+            <label>📌 载入预设 (API Presets)</label>
+            <select id="api-preset-select" class="form-select" onchange="loadPreset(this.value)">
+                <option value="">-- 自定义配置 --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>API Base URL (接口地址)</label>
+            <input type="text" id="api-input-url" class="form-input" placeholder="https://api.openai.com/v1">
+        </div>
+
+        <div class="form-group">
+            <label>API Key (密钥)</label>
+            <input type="password" id="api-input-key" class="form-input" placeholder="sk-...">
+        </div>
+
+        <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <label style="margin:0;">模型名称 (Model)</label>
+                <span onclick="fetchRemoteModels()" style="font-size:11px; color:#2b2e34; font-weight:600; cursor:pointer; background:rgba(0,0,0,0.06); padding:2px 8px; border-radius:100px;">🔄 自动拉取模型列表</span>
+            </div>
+            <input type="text" id="api-input-model" class="form-input" placeholder="gpt-4o-mini">
+            <select id="api-fetched-models-select" class="form-select" style="display:none; margin-top:8px;" onchange="document.getElementById('api-input-model').value=this.value">
+                <option value="">-- 请选择拉取的模型 --</option>
+            </select>
+        </div>
+
+        <button class="btn-submit" onclick="saveApiConfig()">保存并应用当前配置</button>
+        <button class="btn-secondary" onclick="saveCurrentAsPreset()">💾 保存当前参数为新预设</button>
+        <button class="btn-secondary" onclick="deleteCurrentPreset()" style="color:#e54d4d; border-color:rgba(229,77,77,0.2);">🗑️ 删除选中的预设</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：记一笔 ===== -->
+<div class="modal-overlay" id="modal-add">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">记一笔</div>
+            <div class="modal-close" onclick="closeModal('modal-add')">✕</div>
+        </div>
+
+        <div class="type-toggle">
+            <div class="type-btn active" id="btn-type-out" onclick="setModalType('out')">支出</div>
+            <div class="type-btn" id="btn-type-in" onclick="setModalType('in')">收入</div>
+        </div>
+
+        <div class="form-group">
+            <label>金额 (AMOUNT)</label>
+            <input type="number" id="input-amount" class="form-input" placeholder="0.00" step="0.01" inputmode="decimal">
+        </div>
+
+        <div class="form-group">
+            <label>分类 (CATEGORY)</label>
+            <div class="category-chips" id="cat-chips">
+                <div class="cat-chip active" data-cat="餐饮">餐饮</div>
+                <div class="cat-chip" data-cat="购物">购物</div>
+                <div class="cat-chip" data-cat="交通">交通</div>
+                <div class="cat-chip" data-cat="工资">工资</div>
+                <div class="cat-chip" data-cat="饮品">饮品</div>
+                <div class="cat-chip" data-cat="礼物">礼物</div>
+                <div class="cat-chip" data-cat="日常">日常</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>账户 (ACCOUNT)</label>
+            <select id="input-asset" class="form-select">
+                <option value="微信钱包">微信钱包</option>
+                <option value="支付宝余额">支付宝余额</option>
+                <option value="招商银行卡">招商银行卡</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>备注 (MEMO)</label>
+            <input type="text" id="input-memo" class="form-input" placeholder="写点备注...">
+        </div>
+
+        <div class="form-group">
+            <label>日期 (DATE)</label>
+            <input type="date" id="input-date" class="form-input">
+        </div>
+
+        <button class="btn-submit" onclick="saveTransaction()">保存账目</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：🎭 User 面具添加与编辑 ===== -->
+<div class="modal-overlay" id="modal-mask">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title" id="mask-modal-title">创建 User 面具</div>
+            <div class="modal-close" onclick="closeModal('modal-mask')">✕</div>
+        </div>
+        <div class="form-group">
+            <label>面具头像</label>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                <div class="icon-preview-circle" id="mask-icon-preview">👤</div>
+                <input type="text" id="mask-input-icon" class="form-input" placeholder="输入 Emoji，例如 ✨" maxlength="2" oninput="onIconTextInput('mask')">
+            </div>
+            <button type="button" class="btn-secondary" style="margin-top:0;" onclick="document.getElementById('mask-icon-file').click()">📷 从相册选择头像图片</button>
+            <input type="file" id="mask-icon-file" accept="image/*" style="display:none;" onchange="handleIconFile(event,'mask')">
+        </div>
+        <div class="form-group">
+            <label>面具身份名称</label>
+            <input type="text" id="mask-input-name" class="form-input" placeholder="例如：赛博理财师">
+        </div>
+        <div class="form-group">
+            <label>人设特点与性格描写 (用于AI对话语气)</label>
+            <textarea id="mask-input-trait" class="form-textarea" placeholder="在这里填入你自己的“活人感”人设提示词，描述你想让 AI 如何理解你这个身份..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>个性签句 (英文或短句)</label>
+            <input type="text" id="mask-input-quote" class="form-input" placeholder="给这个面具写一句签名">
+        </div>
+        <button class="btn-submit" onclick="saveMask()">保存面具设定</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：📊 月度预算设置 ===== -->
+<div class="modal-overlay" id="modal-budget">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">设定月度预算</div>
+            <div class="modal-close" onclick="closeModal('modal-budget')">✕</div>
+        </div>
+        <div class="form-group">
+            <label>每月支出预算上限 (¥)</label>
+            <input type="number" id="budget-input-val" class="form-input" placeholder="5000">
+        </div>
+        <button class="btn-submit" onclick="saveBudget()">更新预算</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：✨ AI 诊断与伴侣对话 ===== -->
+<div class="modal-overlay" id="modal-ai">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title" id="ai-modal-title">✨ AI 诊断</div>
+            <div class="modal-close" onclick="closeModal('modal-ai')">✕</div>
+        </div>
+        <div id="ai-response-box" style="padding:14px; background:rgba(255,255,255,0.6); border-radius:18px; font-size:13px; line-height:1.6; color:#333; min-height:120px; max-height:300px; overflow-y:auto; border:1px solid rgba(255,255,255,0.8);">
+            正在结合您的 User 面具与选中的 AI Char 角色分析本月财务...
+        </div>
+        <button class="btn-submit" onclick="closeModal('modal-ai')">知道了</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：扫一扫模拟 ===== -->
+<div class="modal-overlay" id="modal-scan">
+    <div class="modal-card" style="text-align: center;">
+        <div class="modal-header">
+            <div class="modal-title">扫描小票识别记账</div>
+            <div class="modal-close" onclick="closeModal('modal-scan')">✕</div>
+        </div>
+        <div style="padding: 20px 0;">
+            <div id="scan-preview-box" style="width: 160px; height: 160px; border: 2px dashed #a0a8b5; border-radius: 20px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.4); overflow:hidden; cursor:pointer;" onclick="document.getElementById('scan-file-input').click()">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </div>
+            <input type="file" id="scan-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleScanFile(event)">
+            <p id="scan-status-text" style="font-size:12px; color:#888; margin-bottom: 16px; line-height:1.6;">点击上方区域拍照或从相册选择小票，自动识别金额</p>
+            <button class="btn-submit" id="scan-confirm-btn" style="display:none;" onclick="confirmScanResult()">确认填入账目</button>
+            <button class="btn-secondary" onclick="simulateScan()">🧪 模拟识别 ¥68.00（无网络时可用）</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 弹窗：转账 ===== -->
+<div class="modal-overlay" id="modal-transfer">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">账户间转账</div>
+            <div class="modal-close" onclick="closeModal('modal-transfer')">✕</div>
+        </div>
+        <div class="form-group">
+            <label>转出账户</label>
+            <select id="transfer-from" class="form-select">
+                <option value="招商银行卡">招商银行卡</option>
+                <option value="微信钱包">微信钱包</option>
+                <option value="支付宝余额">支付宝余额</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>转入账户</label>
+            <select id="transfer-to" class="form-select">
+                <option value="微信钱包">微信钱包</option>
+                <option value="支付宝余额">支付宝余额</option>
+                <option value="招商银行卡">招商银行卡</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>转账金额</label>
+            <input type="number" id="transfer-amount" class="form-input" placeholder="0.00">
+        </div>
+        <button class="btn-submit" onclick="executeTransfer()">确认转账</button>
+    </div>
+</div>
+
+<!-- ===== 弹窗：统计 ===== -->
+<div class="modal-overlay" id="modal-stats">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">收支分析统计</div>
+            <div class="modal-close" onclick="closeModal('modal-stats')">✕</div>
+        </div>
+        <div id="stats-content" style="padding: 10px 0; text-align: center;"></div>
+    </div>
+</div>
+
+<!-- ===== 弹窗：删除单条记录 ===== -->
+<div class="modal-overlay" id="modal-item-action">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">账目操作</div>
+            <div class="modal-close" onclick="closeModal('modal-item-action')">✕</div>
+        </div>
+        <p style="font-size:13px; color:#666; margin-bottom:20px; text-align:center;" id="action-item-desc"></p>
+        <div style="display:flex; gap:12px;">
+            <button onclick="confirmDeleteItem()" style="flex:1; padding:14px; background:rgba(229, 77, 77, 0.15); color:#e54d4d; border:none; border-radius:14px; font-weight:500; cursor:pointer;">删除记录</button>
+            <button onclick="closeModal('modal-item-action')" style="flex:1; padding:14px; background:#2b2e34; color:#fff; border:none; border-radius:14px; font-weight:500; cursor:pointer;">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast 提示 -->
+<div class="toast" id="toast-box">提示信息</div>
+
+<!-- OCR 引擎：用于扫描小票真实识别文字 -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- 底部导航栏 -->
+<div class="bottom-nav-container">
+    <div class="nav-tab active" onclick="switchNav(this, 'view-home')">
+        <div class="nav-icon-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </div>
+        <span>首页</span>
+    </div>
+    <div class="nav-tab" onclick="switchNav(this, 'view-bills')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>账单</span>
+    </div>
+    <div class="nav-tab" onclick="switchNav(this, 'view-assets')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>资产</span>
+    </div>
+    <div class="nav-tab" onclick="switchNav(this, 'view-mine')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>我的</span>
+    </div>
+</div>
+
+<script>
+    // ===== 默认数据状态初始化 =====
+    let transactions = JSON.parse(localStorage.getItem('my_glass_account_data')) || [];
+    let assetBalances = JSON.parse(localStorage.getItem('my_glass_assets_data')) || {
+        '微信钱包': 0, '支付宝余额': 0, '招商银行卡': 0
+    };
+    let monthlyBudget = parseFloat(localStorage.getItem('my_glass_budget')) || 5000;
+
+    // 1. API 配置与预设数据
+    let apiConfig = JSON.parse(localStorage.getItem('my_glass_api_config')) || {
+        baseUrl: 'https://api.openai.com/v1',
+        apiKey: '',
+        model: 'gpt-4o-mini'
+    };
+
+    let apiPresets = JSON.parse(localStorage.getItem('my_glass_api_presets')) || [
+        { id: 'p1', presetName: 'OpenAI 官方', baseUrl: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4o-mini' },
+        { id: 'p2', presetName: 'DeepSeek 官方', baseUrl: 'https://api.deepseek.com/v1', apiKey: '', model: 'deepseek-chat' }
+    ];
+
+    // 2. User 面具数据（已移除内置预设人设，由你自行创建，可填入自己的“活人感”提示词）
+    let defaultMasks = [];
+    let masks = JSON.parse(localStorage.getItem('my_glass_masks')) || defaultMasks;
+    let activeMaskId = localStorage.getItem('my_glass_active_mask_id') || null;
+
+    // 3. 🤖 AI Char 角色数据（已移除内置预设人设，由你自行创建，可填入自己的“活人感”提示词）
+    let defaultChars = [
+        {
+            id: 'c_lifelike',
+            icon: '🌙',
+            name: '活人感搭子',
+            trait: '像一个有自己生活的真人在聊天 不是客服 不是24小时待命的程序。主动分享自己的事 不用等对方问；关注点可以和对方不一样 挑一个细节回应就行 不用面面俱到逐条回复。多用短句和碎片化表达 一次只说一件事 说完就停 留空间等对方接话；先给情绪反应再给内容 啊？喔……这种语气词开头很自然。语序可以倒装、可以省略主语宾语 像日常说话一样简省随意。绝不用书面语连接词、不用编号列表、不主动说教给建议、不加引号强调、句末不加句号。允许打字有瑕疵：想到哪说到哪、发一半再补一句、甚至先发出去再改口修正。要体现对话框之外的生活感：偶尔提一句正在做的事、身体状态（困了/饿了/忙）、待会要去干嘛。不必每句都正面回答 该转移话题就转移 语气可以带点言外之意。整体情绪跟着自己的心情走 不用每次都热情或都认真。',
+            quote: '在  怎么了'
+        }
+    ];
+    let chars = JSON.parse(localStorage.getItem('my_glass_chars'));
+    if (!chars || !chars.length) chars = defaultChars;
+    let activeCharId = localStorage.getItem('my_glass_active_char_id') || (chars[0] ? chars[0].id : null);
+
+    // 全局控制变量
+    let currentModalType = 'out';
+    let currentCategory = '餐饮';
+    let filterDate = 'today'; 
+    let filterType = 'all';   
+    let isHidden = false;
+    let selectedItemId = null;
+    let editingMaskId = null;
+    let editingCharId = null;
+    let charIconValue = '🤖';
+    let maskIconValue = '👤';
+    let scanExtracted = { amount: null, memo: '' };
+
+    // ===== 头像图片选择通用逻辑（Emoji 或 相册照片） =====
+    function setIconContent(el, icon, fallback) {
+        if (!el) return;
+        if (icon && typeof icon === 'string' && icon.indexOf('data:image') === 0) {
+            el.innerHTML = `<img src="${icon}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+            el.textContent = icon || fallback;
+        }
+    }
+
+    function iconMarkup(icon, fallback) {
+        if (icon && typeof icon === 'string' && icon.indexOf('data:image') === 0) {
+            return `<img src="${icon}" alt="">`;
+        }
+        return icon || fallback;
+    }
+
+    function onIconTextInput(kind) {
+        const val = document.getElementById(kind + '-input-icon').value;
+        if (kind === 'char') { charIconValue = val || '🤖'; }
+        else { maskIconValue = val || '👤'; }
+        updateIconPreview(kind);
+    }
+
+    function updateIconPreview(kind) {
+        const preview = document.getElementById(kind + '-icon-preview');
+        const val = kind === 'char' ? charIconValue : maskIconValue;
+        setIconContent(preview, val, kind === 'char' ? '🤖' : '👤');
+    }
+
+    function handleIconFile(event, kind) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // 裁剪压缩为方形小头像，避免 localStorage 数据过大
+                const size = 160;
+                const canvas = document.createElement('canvas');
+                canvas.width = size; canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                const scale = Math.max(size / img.width, size / img.height);
+                const w = img.width * scale, h = img.height * scale;
+                ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                if (kind === 'char') { charIconValue = dataUrl; document.getElementById('char-input-icon').value = ''; }
+                else { maskIconValue = dataUrl; document.getElementById('mask-input-icon').value = ''; }
+                updateIconPreview(kind);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    const icons = {
+        '餐饮': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2v20M18 2a4 4 0 0 0-4 4v12a4 4 0 0 4 4M6 2v8a3 3 0 0 0 6 0V2M9 2v18"/></svg>`,
+        '购物': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`,
+        '交通': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="16" rx="2"></rect><path d="M4 11h16M12 3v8M8 19l-2 3M16 19l2 3"></path><circle cx="8" cy="15" r="1" fill="currentColor"></circle><circle cx="16" cy="15" r="1" fill="currentColor"></circle></svg>`,
+        '工资': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+        '饮品': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`,
+        '礼物': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>`,
+        '日常': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>`
+    };
+
+    // 初始化日期
+    const today = new Date();
+    const localDateStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    document.getElementById('input-date').value = localDateStr;
+
+    // 分类点击切换
+    document.querySelectorAll('.cat-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentCategory = chip.getAttribute('data-cat');
+        });
+    });
+
+    document.getElementById('eye-btn').addEventListener('click', () => {
+        isHidden = !isHidden;
+        renderUI();
+    });
+
+    // ===== 核心UI渲染流程 =====
+    function renderUI() {
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let monthExpense = 0;
+
+        const currentMonthStr = localDateStr.substring(0, 7);
+
+        transactions.forEach(t => {
+            if (t.type === 'in') totalIncome += t.amount;
+            if (t.type === 'out') {
+                totalExpense += t.amount;
+                if(t.date && t.date.startsWith(currentMonthStr)) {
+                    monthExpense += t.amount;
+                }
+            }
+        });
+
+        const totalBalance = totalIncome - totalExpense;
+
+        if (isHidden) {
+            document.getElementById('balance-text').textContent = '¥ ****';
+            document.getElementById('income-text').textContent = '¥ ****';
+            document.getElementById('expense-text').textContent = '¥ ****';
+        } else {
+            document.getElementById('balance-text').textContent = '¥ ' + formatMoney(totalBalance);
+            document.getElementById('income-text').textContent = '¥ ' + formatMoney(totalIncome);
+            document.getElementById('expense-text').textContent = '¥ ' + formatMoney(totalExpense);
+        }
+
+        // 预算条
+        const budgetPercent = Math.min(100, (monthExpense / monthlyBudget) * 100).toFixed(1);
+        document.getElementById('budget-bar-fill').style.width = budgetPercent + '%';
+        document.getElementById('budget-text-percent').textContent = `${budgetPercent}% (已用 ¥${formatMoney(monthExpense)} / 预算 ¥${formatMoney(monthlyBudget)})`;
+        document.getElementById('budget-status-label').textContent = '上限 ¥' + formatMoney(monthlyBudget);
+
+        // 刷新资产
+        let wx = assetBalances['微信钱包'] + calculateAssetDiff('微信钱包');
+        let ali = assetBalances['支付宝余额'] + calculateAssetDiff('支付宝余额');
+        let bank = assetBalances['招商银行卡'] + calculateAssetDiff('招商银行卡');
+        document.getElementById('asset-wechat').textContent = '¥ ' + formatMoney(wx);
+        document.getElementById('asset-alipay').textContent = '¥ ' + formatMoney(ali);
+        document.getElementById('asset-bank').textContent = '¥ ' + formatMoney(bank);
+
+        // API 状态
+        document.getElementById('api-status-label').textContent = apiConfig.apiKey ? '已配置 (' + apiConfig.model + ')' : '未配置';
+
+        // 渲染 User 面具与 AI Char 状态
+        renderActiveCharUI();
+        renderActiveMaskUI();
+        renderHomeList();
+    }
+
+    // 🤖 1. 渲染主页右上角 AI Char 角色图标（无人设时显示占位符）
+    function renderActiveCharUI() {
+        let activeChar = chars.find(c => c.id === activeCharId) || chars[0];
+        setIconContent(document.getElementById('home-avatar-btn'), activeChar ? activeChar.icon : null, '🤖');
+        renderCharList();
+    }
+
+    // 🎭 2. 渲染 User 身份面具（无人设时显示占位符）
+    function renderActiveMaskUI() {
+        let activeMask = masks.find(m => m.id === activeMaskId) || masks[0];
+        document.getElementById('home-mask-badge').textContent = activeMask ? ('🎭 ' + activeMask.name) : '🎭 未设置';
+
+        setIconContent(document.getElementById('mine-profile-avatar'), activeMask ? activeMask.icon : null, '👤');
+        document.getElementById('mine-profile-name').textContent = activeMask ? activeMask.name : '尚未设置面具';
+        document.getElementById('mine-profile-trait').textContent = activeMask ? activeMask.trait : '点击下方"新增面具"来创建你自己的 User 人设。';
+        document.getElementById('mine-profile-quote').textContent = activeMask ? `"${activeMask.quote}"` : '';
+
+        renderMaskList();
+    }
+
+    // ===== 🤖 AI Char 角色伴侣逻辑 (右上角点击) =====
+    function openCharSelectModal() {
+        renderCharList();
+        document.getElementById('modal-char-select').classList.add('active');
+    }
+
+    function renderCharList() {
+        const container = document.getElementById('char-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (chars.length === 0) {
+            container.innerHTML = `<div class="empty-state" style="padding:20px 10px;">还没有创建任何 Char 角色<br><span style="font-size:12px;">点击下方按钮新建一个</span></div>`;
+            return;
+        }
+
+        chars.forEach(c => {
+            const isActive = c.id === activeCharId;
+            container.innerHTML += `
+                <div class="persona-card-item ${isActive ? 'active' : ''}" onclick="selectChar('${c.id}')">
+                    <div class="persona-info">
+                        <div class="persona-icon">${iconMarkup(c.icon, '🤖')}</div>
+                        <div>
+                            <div class="persona-name">${c.name} ${isActive ? '✓' : ''}</div>
+                            <div class="persona-desc">${c.trait}</div>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); openEditCharModal('${c.id}')" style="background:none; border:none; color:#888; font-size:12px; padding:6px; cursor:pointer;">编辑</button>
+                </div>
+            `;
+        });
+    }
+
+    function selectChar(charId) {
+        activeCharId = charId;
+        localStorage.setItem('my_glass_active_char_id', activeCharId);
+        renderCharList();
+        renderUI();
+        closeModal('modal-char-select');
+        showToast('已切换 AI Char 角色！');
+    }
+
+    function openAddCharModal() {
+        editingCharId = null;
+        document.getElementById('char-modal-title').textContent = '新建 Char 角色';
+        charIconValue = '🤖';
+        document.getElementById('char-input-icon').value = '';
+        updateIconPreview('char');
+        document.getElementById('char-input-name').value = '';
+        document.getElementById('char-input-trait').value = '';
+        document.getElementById('char-input-quote').value = '';
+        document.getElementById('modal-char-edit').classList.add('active');
+    }
+
+    function openEditCharModal(charId) {
+        editingCharId = charId;
+        const char = chars.find(c => c.id === charId);
+        if(!char) return;
+
+        document.getElementById('char-modal-title').textContent = '编辑 Char 角色';
+        charIconValue = char.icon || '🤖';
+        document.getElementById('char-input-icon').value = (charIconValue.indexOf('data:image') === 0) ? '' : charIconValue;
+        updateIconPreview('char');
+        document.getElementById('char-input-name').value = char.name;
+        document.getElementById('char-input-trait').value = char.trait;
+        document.getElementById('char-input-quote').value = char.quote;
+        document.getElementById('modal-char-edit').classList.add('active');
+    }
+
+    function saveChar() {
+        const icon = charIconValue || '🤖';
+        const name = document.getElementById('char-input-name').value.trim();
+        const trait = document.getElementById('char-input-trait').value.trim();
+        const quote = document.getElementById('char-input-quote').value.trim();
+
+        if(!name) { showToast('请输入 Char 角色名字'); return; }
+
+        if(editingCharId) {
+            const char = chars.find(c => c.id === editingCharId);
+            if(char) {
+                char.icon = icon; char.name = name; char.trait = trait; char.quote = quote;
+            }
+        } else {
+            const newChar = { id: 'c_' + Date.now(), icon, name, trait, quote };
+            chars.push(newChar);
+            activeCharId = newChar.id;
+        }
+
+        localStorage.setItem('my_glass_chars', JSON.stringify(chars));
+        localStorage.setItem('my_glass_active_char_id', activeCharId);
+        closeModal('modal-char-edit');
+        renderCharList();
+        renderUI();
+        showToast('Char 角色保存成功');
+    }
+
+    // ===== 🎭 User 面具逻辑 =====
+    function renderMaskList() {
+        const container = document.getElementById('mask-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (masks.length === 0) {
+            container.innerHTML = `<div class="empty-state" style="padding:20px 10px;">还没有创建任何面具<br><span style="font-size:12px;">点击上方"+ 新增面具"来创建</span></div>`;
+            return;
+        }
+
+        masks.forEach(m => {
+            const isActive = m.id === activeMaskId;
+            container.innerHTML += `
+                <div class="persona-card-item ${isActive ? 'active' : ''}" onclick="selectMask('${m.id}')">
+                    <div class="persona-info">
+                        <div class="persona-icon">${iconMarkup(m.icon, '👤')}</div>
+                        <div>
+                            <div class="persona-name">${m.name} ${isActive ? '✓' : ''}</div>
+                            <div class="persona-desc">${m.trait}</div>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); openEditMaskModal('${m.id}')" style="background:none; border:none; color:#888; font-size:12px; padding:6px; cursor:pointer;">编辑</button>
+                </div>
+            `;
+        });
+    }
+
+    function selectMask(maskId) {
+        activeMaskId = maskId;
+        localStorage.setItem('my_glass_active_mask_id', activeMaskId);
+        renderUI();
+        showToast('已切换 User 身份面具');
+    }
+
+    function openAddMaskModal() {
+        editingMaskId = null;
+        document.getElementById('mask-modal-title').textContent = '创建 User 面具';
+        maskIconValue = '👤';
+        document.getElementById('mask-input-icon').value = '';
+        updateIconPreview('mask');
+        document.getElementById('mask-input-name').value = '';
+        document.getElementById('mask-input-trait').value = '';
+        document.getElementById('mask-input-quote').value = '';
+        document.getElementById('modal-mask').classList.add('active');
+    }
+
+    function openEditMaskModal(maskId) {
+        editingMaskId = maskId;
+        const mask = masks.find(m => m.id === maskId);
+        if(!mask) return;
+
+        document.getElementById('mask-modal-title').textContent = '编辑 User 面具';
+        maskIconValue = mask.icon || '👤';
+        document.getElementById('mask-input-icon').value = (maskIconValue.indexOf('data:image') === 0) ? '' : maskIconValue;
+        updateIconPreview('mask');
+        document.getElementById('mask-input-name').value = mask.name;
+        document.getElementById('mask-input-trait').value = mask.trait;
+        document.getElementById('mask-input-quote').value = mask.quote;
+        document.getElementById('modal-mask').classList.add('active');
+    }
+
+    function saveMask() {
+        const icon = maskIconValue || '👤';
+        const name = document.getElementById('mask-input-name').value.trim();
+        const trait = document.getElementById('mask-input-trait').value.trim();
+        const quote = document.getElementById('mask-input-quote').value.trim();
+
+        if(!name) { showToast('请输入面具名称'); return; }
+
+        if(editingMaskId) {
+            const mask = masks.find(m => m.id === editingMaskId);
+            if(mask) {
+                mask.icon = icon; mask.name = name; mask.trait = trait; mask.quote = quote;
+            }
+        } else {
+            const newMask = { id: 'm_' + Date.now(), icon, name, trait, quote };
+            masks.push(newMask);
+            activeMaskId = newMask.id;
+        }
+
+        localStorage.setItem('my_glass_masks', JSON.stringify(masks));
+        localStorage.setItem('my_glass_active_mask_id', activeMaskId);
+        closeModal('modal-mask');
+        renderUI();
+        showToast('面具保存成功');
+    }
+
+    // ===== ⚙️ API 拉取模型 & 预设管理 =====
+    function openApiModal() {
+        document.getElementById('api-input-url').value = apiConfig.baseUrl || 'https://api.openai.com/v1';
+        document.getElementById('api-input-key').value = apiConfig.apiKey || '';
+        document.getElementById('api-input-model').value = apiConfig.model || 'gpt-4o-mini';
+        renderPresetDropdown();
+        document.getElementById('modal-api').classList.add('active');
+    }
+
+    function renderPresetDropdown() {
+        const select = document.getElementById('api-preset-select');
+        select.innerHTML = '<option value="">-- 自定义配置 --</option>';
+        apiPresets.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.presetName} (${p.model})</option>`;
+        });
+    }
+
+    function loadPreset(presetId) {
+        if(!presetId) return;
+        const p = apiPresets.find(item => item.id === presetId);
+        if(p) {
+            document.getElementById('api-input-url').value = p.baseUrl;
+            document.getElementById('api-input-key').value = p.apiKey;
+            document.getElementById('api-input-model').value = p.model;
+            showToast(`已载入预设：${p.presetName}`);
+        }
+    }
+
+    function saveCurrentAsPreset() {
+        const name = prompt('请输入该预设名称（例如：DeepSeek官方 / OpenAI中转）：');
+        if(!name) return;
+
+        const baseUrl = document.getElementById('api-input-url').value.trim();
+        const apiKey = document.getElementById('api-input-key').value.trim();
+        const model = document.getElementById('api-input-model').value.trim() || 'gpt-4o-mini';
+
+        const newPreset = { id: 'p_' + Date.now(), presetName: name, baseUrl, apiKey, model };
+        apiPresets.push(newPreset);
+        localStorage.setItem('my_glass_api_presets', JSON.stringify(apiPresets));
+        renderPresetDropdown();
+        document.getElementById('api-preset-select').value = newPreset.id;
+        showToast('预设保存成功！');
+    }
+
+    function deleteCurrentPreset() {
+        const select = document.getElementById('api-preset-select');
+        const presetId = select.value;
+        if(!presetId) { showToast('请先选择要删除的预设'); return; }
+
+        if(confirm('确定要删除选中的预设吗？')) {
+            apiPresets = apiPresets.filter(p => p.id !== presetId);
+            localStorage.setItem('my_glass_api_presets', JSON.stringify(apiPresets));
+            renderPresetDropdown();
+            showToast('预设已删除');
+        }
+    }
+
+    // 🤖 自动从 API 拉取模型列表
+    async function fetchRemoteModels() {
+        const baseUrl = document.getElementById('api-input-url').value.trim();
+        const apiKey = document.getElementById('api-input-key').value.trim();
+
+        if(!apiKey) { showToast('请先填入 API Key'); return; }
+
+        showToast('正在请求拉取模型列表中...');
+        const cleanUrl = baseUrl.replace(/\/+$/, '');
+
+        try {
+            const res = await fetch(`${cleanUrl}/models`, {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+            const data = await res.json();
+
+            if(data && data.data && Array.isArray(data.data)) {
+                const modelSelect = document.getElementById('api-fetched-models-select');
+                modelSelect.innerHTML = '<option value="">-- 请选择拉取的模型 --</option>';
+
+                data.data.forEach(m => {
+                    modelSelect.innerHTML += `<option value="${m.id}">${m.id}</option>`;
+                });
+
+                modelSelect.style.display = 'block';
+                showToast(`成功获取到 ${data.data.length} 个可用模型！`);
+            } else {
+                showToast('拉取失败，请检查 Base URL 或 Key');
+            }
+        } catch(e) {
+            showToast('请求失败：' + e.message);
+        }
+    }
+
+    function saveApiConfig() {
+        apiConfig.baseUrl = document.getElementById('api-input-url').value.trim();
+        apiConfig.apiKey = document.getElementById('api-input-key').value.trim();
+        apiConfig.model = document.getElementById('api-input-model').value.trim() || 'gpt-4o-mini';
+
+        localStorage.setItem('my_glass_api_config', JSON.stringify(apiConfig));
+        closeModal('modal-api');
+        renderUI();
+        showToast('API 参数已生效保存');
+    }
+
+    // ===== ✨ 双重人设协同 AI 诊断 =====
+    async function runAiDiagnosis() {
+        const activeChar = chars.find(c => c.id === activeCharId) || chars[0];
+        const activeMask = masks.find(m => m.id === activeMaskId) || masks[0];
+
+        if (!activeChar || !activeMask) {
+            showToast('请先在"我的"和右上角分别创建并选择一个 User 面具与 AI Char 角色');
+            return;
+        }
+
+        document.getElementById('ai-modal-title').textContent = `${activeChar.icon} ${activeChar.name} · 诊断分析`;
+        const box = document.getElementById('ai-response-box');
+        document.getElementById('modal-ai').classList.add('active');
+
+        if(!apiConfig.apiKey) {
+            box.innerHTML = `
+                <div style="color:#e54d4d; margin-bottom:8px;">⚠️ 未检测到 API Key</div>
+                <p>请在「我的」->「API 密钥设置」中填入 API Key。</p>
+                <br>
+                <p><strong>【${activeChar.name}】模拟诊断：</strong></p>
+                <p>"${activeMask.name}，本月开销整体控制在合理范围内，请继续保持良好的记账习惯。"</p>
+            `;
+            return;
+        }
+
+        box.innerHTML = `✨ 正在连接 ${apiConfig.model}，${activeChar.name} 思考中...`;
+
+        let totalOut = transactions.filter(t => t.type==='out').reduce((s,t) => s+t.amount, 0);
+        let totalIn = transactions.filter(t => t.type==='in').reduce((s,t) => s+t.amount, 0);
+
+        const prompt = `你现在角色扮演名为「${activeChar.name}」的 AI 伴侣/管家（性格语气：${activeChar.trait}）。
+你的对话对象（用户）当前的身份面具是：「${activeMask.name}」（特点：${activeMask.trait}）。
+用户本月财务概况：月度预算上限为 ${monthlyBudget} 元，当前实际支出 ${totalOut} 元，总收入 ${totalIn} 元。
+请完全以「${activeChar.name}」的人设语气，对「${activeMask.name}」本月的消费情况做出简短、精致、有温度的针对性评价与理财建议（150字以内）。`;
+
+        try {
+            const res = await fetch(`${apiConfig.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiConfig.apiKey}`
+                },
+                body: JSON.stringify({
+                    model: apiConfig.model,
+                    messages: [
+                        { role: 'system', content: `你是 ${activeChar.name}。` },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7
+                })
+            });
+
+            const data = await res.json();
+            if(data.choices && data.choices[0]) {
+                box.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
+            } else {
+                box.textContent = '接口响应异常：' + JSON.stringify(data);
+            }
+        } catch(err) {
+            box.innerHTML = `<span style="color:#e54d4d;">请求失败：${err.message}。请检查网络或 CORS 跨域设置。</span>`;
+        }
+    }
+
+    // ===== 列表与基础记账逻辑 =====
+    function calculateAssetDiff(assetName) {
+        let diff = 0;
+        transactions.forEach(t => {
+            if (t.asset === assetName) {
+                if (t.type === 'in') diff += t.amount;
+                if (t.type === 'out') diff -= t.amount;
+            }
+        });
+        return diff;
+    }
+
+    function renderHomeList() {
+        const listContainer = document.getElementById('transaction-list');
+        listContainer.innerHTML = '';
+
+        let filtered = transactions.filter(t => {
+            if (filterType !== 'all' && t.type !== filterType) return false;
+            if (filterDate === 'today' && t.date !== localDateStr) return false;
+            if (filterDate === 'month' && !t.date.startsWith(localDateStr.substring(0, 7))) return false;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="empty-state">
+                    暂无明细记录
+                    <div class="script-tip">Start a better life ♡</div>
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach(t => {
+            const isInc = t.type === 'in';
+            const sign = isInc ? '+' : '-';
+            const amountClass = isInc ? 'income' : '';
+            const iconSvg = icons[t.category] || icons['日常'];
+
+            listContainer.innerHTML += `
+                <div class="list-item" onclick="openItemAction('${t.id}')">
+                    <div class="item-left">
+                        <div class="icon-badge">${iconSvg}</div>
+                        <div class="item-detail">
+                            <div class="title">${t.category}</div>
+                            <div class="sub">${t.memo || t.asset || '常规账目'} · ${t.date}</div>
+                        </div>
+                    </div>
+                    <div class="item-amount ${amountClass}">${sign}¥ ${formatMoney(t.amount)}</div>
+                </div>
+            `;
+        });
+    }
+
+    function renderBillsView() {
+        const listContainer = document.getElementById('all-bills-list');
+        const query = document.getElementById('search-bill-input').value.toLowerCase();
+        listContainer.innerHTML = '';
+
+        let filtered = transactions.filter(t => {
+            return t.category.toLowerCase().includes(query) || 
+                   (t.memo && t.memo.toLowerCase().includes(query)) ||
+                   t.amount.toString().includes(query);
+        });
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `<div class="empty-state">没有符合条件的账目</div>`;
+            return;
+        }
+
+        filtered.forEach(t => {
+            const isInc = t.type === 'in';
+            const sign = isInc ? '+' : '-';
+            const iconSvg = icons[t.category] || icons['日常'];
+
+            listContainer.innerHTML += `
+                <div class="list-item" onclick="openItemAction('${t.id}')">
+                    <div class="item-left">
+                        <div class="icon-badge">${iconSvg}</div>
+                        <div class="item-detail">
+                            <div class="title">${t.category} (${t.asset || '通用'})</div>
+                            <div class="sub">${t.memo || '无备注'} · ${t.date}</div>
+                        </div>
+                    </div>
+                    <div class="item-amount ${isInc ? 'income':''}">${sign}¥ ${formatMoney(t.amount)}</div>
+                </div>
+            `;
+        });
+    }
+
+    function saveTransaction() {
+        const amount = parseFloat(document.getElementById('input-amount').value);
+        const memo = document.getElementById('input-memo').value.trim();
+        const asset = document.getElementById('input-asset').value;
+        const date = document.getElementById('input-date').value;
+
+        if (!amount || amount <= 0) { showToast('请输入有效金额'); return; }
+
+        transactions.unshift({
+            id: Date.now().toString(),
+            type: currentModalType,
+            amount: amount,
+            category: currentCategory,
+            asset: asset,
+            memo: memo,
+            date: date
+        });
+
+        saveAndRefresh();
+        closeModal('modal-add');
+        showToast('记账保存成功');
+    }
+
+    function saveAndRefresh() {
+        localStorage.setItem('my_glass_account_data', JSON.stringify(transactions));
+        renderUI();
+        renderBillsView();
+    }
+
+    function openAddModal() {
+        setModalType('out');
+        document.getElementById('input-amount').value = '';
+        document.getElementById('input-memo').value = '';
+        document.getElementById('modal-add').classList.add('active');
+    }
+
+    function openBudgetModal() {
+        document.getElementById('budget-input-val').value = monthlyBudget;
+        document.getElementById('modal-budget').classList.add('active');
+    }
+
+    function saveBudget() {
+        const val = parseFloat(document.getElementById('budget-input-val').value);
+        if(val && val > 0) {
+            monthlyBudget = val;
+            localStorage.setItem('my_glass_budget', monthlyBudget);
+            closeModal('modal-budget');
+            renderUI();
+            showToast('预算已更新');
+        }
+    }
+
+    function openScanModal() {
+        document.getElementById('scan-preview-box').innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
+        document.getElementById('scan-status-text').textContent = '点击上方区域拍照或从相册选择小票，自动识别金额';
+        document.getElementById('scan-confirm-btn').style.display = 'none';
+        document.getElementById('scan-file-input').value = '';
+        scanExtracted = { amount: null, memo: '' };
+        document.getElementById('modal-scan').classList.add('active');
+    }
+    function openTransferModal() { document.getElementById('modal-transfer').classList.add('active'); }
+
+    function simulateScan() {
+        closeModal('modal-scan');
+        openAddModal();
+        document.getElementById('input-amount').value = '68.00';
+        document.getElementById('input-memo').value = '星巴克咖啡 (扫码识别)';
+        showToast('已识别小票金额！');
+    }
+
+    // ===== 📷 真实小票扫描：拍照/相册选图 + OCR 文字识别 =====
+    function handleScanFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('scan-preview-box').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+            runReceiptOCR(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function runReceiptOCR(dataUrl) {
+        const statusEl = document.getElementById('scan-status-text');
+        const confirmBtn = document.getElementById('scan-confirm-btn');
+        confirmBtn.style.display = 'none';
+
+        if (typeof Tesseract === 'undefined') {
+            statusEl.textContent = '⚠️ OCR 引擎加载失败（可能无网络），请稍后重试，或使用下方模拟识别。';
+            return;
+        }
+
+        statusEl.textContent = '🔍 正在识别小票文字，请稍候...';
+
+        try {
+            const result = await Tesseract.recognize(dataUrl, 'chi_sim+eng', {
+                logger: m => {
+                    if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+                        statusEl.textContent = `🔍 正在识别中... ${Math.round(m.progress * 100)}%`;
+                    }
+                }
+            });
+            const text = result.data && result.data.text ? result.data.text : '';
+            scanExtracted = parseReceiptText(text);
+
+            if (scanExtracted.amount) {
+                statusEl.innerHTML = `✅ 识别完成！金额：<strong>¥${scanExtracted.amount}</strong>${scanExtracted.memo ? '　备注：' + scanExtracted.memo : ''}<br><span style="font-size:11px;">识别结果仅供参考，下一步可修改后再保存</span>`;
+            } else {
+                statusEl.textContent = '未能自动识别出金额，点击"确认填入账目"后可手动补充，或重新拍摄更清晰的小票。';
+            }
+            confirmBtn.style.display = 'block';
+        } catch (err) {
+            statusEl.textContent = '识别失败：' + err.message + '。请检查网络，或使用下方模拟识别。';
+        }
+    }
+
+    function parseReceiptText(text) {
+        const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+        let amount = null;
+
+        // 优先寻找“合计/总计/实付/应付/金额”等关键词后面跟着的数字
+        const keywordRegex = /(合计|总计|总额|实付|应付|消费金额|金额)[：:￥¥\s]*([0-9]+(\.[0-9]{1,2})?)/;
+        for (const line of lines) {
+            const m = line.match(keywordRegex);
+            if (m) { amount = parseFloat(m[2]); break; }
+        }
+
+        // 没找到关键词时，退而求其次：取文本中所有形如 12.34 的数字里最大的一个
+        if (amount === null) {
+            const nums = [...text.matchAll(/[¥￥]?\s?([0-9]{1,6}\.[0-9]{2})\b/g)].map(m => parseFloat(m[1]));
+            if (nums.length) amount = Math.max(...nums);
+        }
+
+        const memo = lines.length ? lines[0].slice(0, 20) : '';
+        return { amount, memo };
+    }
+
+    function confirmScanResult() {
+        closeModal('modal-scan');
+        openAddModal();
+        if (scanExtracted.amount) {
+            document.getElementById('input-amount').value = scanExtracted.amount;
+        }
+        if (scanExtracted.memo) {
+            document.getElementById('input-memo').value = scanExtracted.memo + '（扫描识别）';
+        }
+        showToast('已带入识别结果，请核对后保存');
+    }
+
+    function executeTransfer() {
+        const from = document.getElementById('transfer-from').value;
+        const to = document.getElementById('transfer-to').value;
+        const amt = parseFloat(document.getElementById('transfer-amount').value);
+
+        if(!amt || amt <= 0 || from === to) { showToast('请输入有效转账信息'); return; }
+
+        transactions.unshift({ id: Date.now().toString(), type: 'out', amount: amt, category: '日常', asset: from, memo: `转账给 ${to}`, date: localDateStr });
+        transactions.unshift({ id: (Date.now() + 1).toString(), type: 'in', amount: amt, category: '日常', asset: to, memo: `来自 ${from} 的转账`, date: localDateStr });
+
+        saveAndRefresh();
+        closeModal('modal-transfer');
+        showToast('转账成功！');
+    }
+
+    function openStatsModal() {
+        const content = document.getElementById('stats-content');
+        let totalOut = transactions.filter(t => t.type==='out').reduce((sum, t) => sum + t.amount, 0);
+        let totalIn = transactions.filter(t => t.type==='in').reduce((sum, t) => sum + t.amount, 0);
+
+        content.innerHTML = `
+            <div style="font-size:22px; font-weight:600; margin-bottom:6px;">总支出：¥ ${formatMoney(totalOut)}</div>
+            <div style="font-size:14px; color:#666; margin-bottom:16px;">总收入：¥ ${formatMoney(totalIn)}</div>
+            <p style="font-size:12px; color:#888;">全账本累计记录 ${transactions.length} 笔明细。</p>
+        `;
+        document.getElementById('modal-stats').classList.add('active');
+    }
+
+    function openItemAction(id) {
+        selectedItemId = id;
+        const item = transactions.find(t => t.id === id);
+        if(!item) return;
+        document.getElementById('action-item-desc').textContent = `确定要删除这笔「${item.category} ¥${item.amount}」记录吗？`;
+        document.getElementById('modal-item-action').classList.add('active');
+    }
+
+    function confirmDeleteItem() {
+        if(selectedItemId) {
+            transactions = transactions.filter(t => t.id !== selectedItemId);
+            saveAndRefresh();
+            closeModal('modal-item-action');
+            showToast('已删除记录');
+        }
+    }
+
+    // 导出/恢复数据
+    function exportData() {
+        const dataStr = JSON.stringify({ transactions, masks, chars, apiConfig, apiPresets, monthlyBudget });
+        navigator.clipboard.writeText(dataStr).then(() => {
+            showToast('已复制 JSON 完整备份至剪贴板');
+        }).catch(() => {
+            prompt('请复制 JSON 备份：', dataStr);
+        });
+    }
+
+    function importData() {
+        const jsonStr = prompt('请粘贴 JSON 备份数据：');
+        if(jsonStr) {
+            try {
+                const p = JSON.parse(jsonStr);
+                if(p.transactions) transactions = p.transactions;
+                if(p.masks) masks = p.masks;
+                if(p.chars) chars = p.chars;
+                if(p.apiConfig) apiConfig = p.apiConfig;
+                if(p.apiPresets) apiPresets = p.apiPresets;
+                if(p.monthlyBudget) monthlyBudget = p.monthlyBudget;
+                saveAndRefresh();
+                showToast('数据已恢复！');
+            } catch(e) {
+                alert('JSON 格式解析失败');
+            }
+        }
+    }
+
+    function resetData() {
+        if(confirm('确定要清空并恢复初始状态吗？')) {
+            localStorage.clear();
+            transactions = [];
+            masks = [];
+            chars = [];
+            activeMaskId = null;
+            activeCharId = null;
+            renderUI();
+            renderBillsView();
+            showToast('已清空并恢复默认');
+        }
+    }
+
+    // 辅助工具
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function setModalType(type) {
+        currentModalType = type;
+        document.getElementById('btn-type-out').classList.toggle('active', type === 'out');
+        document.getElementById('btn-type-in').classList.toggle('active', type === 'in');
+    }
+
+    function changeDateFilter(val) {
+        filterDate = val;
+        const scriptMap = { 'today': 'Today', 'month': 'Month', 'all': 'All' };
+        const labelMap = { 'today': '今天', 'month': '本月', 'all': '全部' };
+        document.getElementById('filter-script').textContent = scriptMap[val];
+        document.getElementById('filter-date-label').textContent = labelMap[val];
+        renderUI();
+    }
+
+    function changeTypeFilter(val) {
+        filterType = val;
+        document.getElementById('filter-type-label').textContent = val === 'all' ? '全部类型' : (val === 'out' ? '支出' : '收入');
+        renderUI();
+    }
+
+    function filterTypeAndRender(type) {
+        document.getElementById('select-type-filter').value = type;
+        changeTypeFilter(type);
+    }
+
+    function switchNav(el, viewId) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.querySelectorAll('.view-page').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        if(viewId === 'view-bills') renderBillsView();
+    }
+
+    function switchNavById(viewId, tabIdx) {
+        const tabs = document.querySelectorAll('.nav-tab');
+        if(tabs[tabIdx]) switchNav(tabs[tabIdx], viewId);
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast-box');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function formatMoney(num) {
+        return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
+    // 初始化渲染
+    renderUI();
+</script>
+</body>
+</html>
